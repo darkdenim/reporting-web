@@ -28,7 +28,8 @@ import org.dussan.vaadin.dcharts.metadata.styles.MarkerStyles;
 import org.dussan.vaadin.dcharts.options.*;
 import org.dussan.vaadin.dcharts.renderers.axis.LinearAxisRenderer;
 import org.dussan.vaadin.dcharts.renderers.tick.AxisTickRenderer;
-import org.vaadin.spring.VaadinUI;
+//import org.vaadin.spring.VaadinUI;
+import org.vaadin.spring.annotation.VaadinUI;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -40,7 +41,7 @@ import java.util.*;
 @Widgetset("com.smallbizconsult.ui.AppWidgetSet")
 public class ReportingUI extends UI {
 
-    public static final String fileLocation = "F:\\Downloads\\Sample - Superstore Sales (Excel).xls";
+    public static final String fileLocation = "C:\\git\\Sample - Superstore Sales (Excel).xls";
 
     @Override
     protected void init(VaadinRequest vaadinRequest) {
@@ -104,23 +105,30 @@ public class ReportingUI extends UI {
             monthlyQtyMap.put(month, mQty);
         }
 
-        VerticalLayout layout = new VerticalLayout();
-        layout.addComponent(table);
+//        VerticalLayout layout = new VerticalLayout();
+//        layout.addComponent(table);
         String[] names = new String[map.keySet().size()];
 
-        Component chart = generateCharts(map.values().toArray(new Integer[map.values().size()]), map.keySet().toArray(names));
-        Component lineChart = drawLineChart(names);
-        Component salesChart = drawMonthlySalesChart(monthlyQtyMap, yearSalesMap);
-        Component monthlySalesChart = monthlySalesChart(yearSalesMap);
+        DCharts chart = (DCharts)generateCharts(map.values().toArray(new Integer[map.values().size()]), map.keySet().toArray(names));
+        chart.setCaption("Bar Chart");
+        DCharts lineChart = (DCharts)drawLineChart(monthlyQtyMap, names);
+        DCharts salesChart = (DCharts)drawMonthlySalesChart(monthlyQtyMap, yearSalesMap);
+        DCharts monthlySalesChart = (DCharts)monthlySalesChart(yearSalesMap);
 
-        layout.addComponent(chart);
-        layout.addComponent(lineChart);
-        layout.addComponent(salesChart);
-        layout.addComponent(monthlySalesChart);
+//        layout.addComponent(chart);
+//        layout.addComponent(lineChart);
+//        layout.addComponent(salesChart);
+//        layout.addComponent(monthlySalesChart);
+
+        TabSheet chartTabSheet = new TabSheet();
+        chartTabSheet.addTab(chart, "Bar", new ThemeResource("img/icon1.png"));
+        chartTabSheet.addTab(lineChart, "Line", new ThemeResource("img/icon1.png"));
+        chartTabSheet.addTab(salesChart, "Sales", new ThemeResource("img/icon1.png"));
+        chartTabSheet.addTab(monthlySalesChart, "Monthly Sales", new ThemeResource("img/icon1.png"));
 
         TabSheet tabSheet = new TabSheet();
-        tabSheet.addTab(table, "Data", new ThemeResource("WEB-INF/img/report_icon.jpg"));
-        tabSheet.addTab(layout, "Charts", new ThemeResource("WEB-INF/img/icon1.jpg"));
+        tabSheet.addTab(table, "Data", new ThemeResource("img/report_icon.jpg"));
+        tabSheet.addTab(chartTabSheet, "Charts", new ThemeResource("img/icon1.png"));
 
         setContent(tabSheet);
     }
@@ -147,6 +155,8 @@ public class ReportingUI extends UI {
         Options options = new Options()
                 .setSeriesDefaults(seriesDefaults)
                 .setAxes(axes)
+                .setAnimate(true)
+                .setTitle("Top 10 Customers")
                 .setHighlighter(highlighter);
 //                .setSeries(series);
 
@@ -158,7 +168,7 @@ public class ReportingUI extends UI {
         return chart;
     }
 
-    private Component drawLineChart(String[] names) {
+    private Component drawLineChart(Map<String, Integer> map, String[] names) {
         Title title = new Title("Plot With Options");
 
         AxesDefaults axesDefaults = new AxesDefaults()
@@ -191,11 +201,24 @@ public class ReportingUI extends UI {
                 .setAxesDefaults(axesDefaults)
                 .setAxes(axes)
                 .addOption(cursor)
+                .setAnimate(true)
+                .setTitle("Sales over time")
                 .setSeries(series);
 
         DataSeries dataSeries = new DataSeries()
-                .add(3, 7, 9, 1, 4, 6, 8, 2, 5)
-                .add(1, 3, 6, 9, 12, 15, 10, 8);
+                .add(3, 7, 9, 1, 4, 6, 8, 2, 5);
+        DataSeries subSeries = dataSeries.newSeries();
+
+        int i = 0;
+        for (String month : map.keySet()) {
+            if (i>8) break;
+            subSeries.add(month, map.get(month));
+            i++;
+        }
+
+//        DataSeries dataSeries = new DataSeries()
+//                .add(3, 7, 9, 1, 4, 6, 8, 2, 5)
+//                .add(1, 3, 6, 9, 12, 15, 10, 8);
 
         DCharts chart = new DCharts()
                 .setDataSeries(dataSeries)
@@ -233,6 +256,8 @@ public class ReportingUI extends UI {
 //                .addOption(seriesDefaults)
                 .addOption(axes)
 //                .addOption(highlighter)
+                .setAnimate(true)
+                .setTitle("Sales over time (months)")
                 .addOption(cursor);
 
         DCharts chart = new DCharts()
@@ -269,6 +294,8 @@ public class ReportingUI extends UI {
 
         Options options = new Options()
                 .addOption(axes)
+                .setAnimate(true)
+                .setTitle("Annual sales trend")
                 .addOption(cursor);
 
         DCharts chart = new DCharts()
@@ -283,6 +310,8 @@ public class ReportingUI extends UI {
         List<ModelA> models = new ArrayList<ModelA>();
         try {
 
+            File f = new File(fileLocation);
+            System.out.println("Path: " + f.getAbsolutePath());
             FileInputStream file = new FileInputStream(new File(fileLocation));
 
             //Get the workbook instance for XLS file
