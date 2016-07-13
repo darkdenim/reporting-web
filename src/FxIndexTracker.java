@@ -14,9 +14,6 @@ import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
 
-/**
- * Created by ngubensw on 2016/07/12.
- */
 public class FxIndexTracker {
 
     private final AppConfig config;
