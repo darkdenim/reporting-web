@@ -136,6 +136,7 @@ public class FxIndexTracker {
     }
 
     public static void main(String[] args) {
+        System.out.println("Starting Tracker...");
         FxIndexTracker fxIndexTracker = new FxIndexTracker();
         TimerTask task = new TimerTask() {
             @Override
