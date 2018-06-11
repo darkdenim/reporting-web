@@ -1,6 +1,8 @@
 package com.smallbizconsult;
 
 import java.util.Arrays;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
@@ -13,7 +15,7 @@ import org.springframework.context.annotation.Configuration;
 @ComponentScan
 public class App {
 
-    public static void main(String[] args) {
+    public static void main_(String[] args) {
         ApplicationContext ctx = SpringApplication.run(App.class, args);
 
         System.out.println("Let's inspect the beans provided by Spring Boot:");
@@ -23,6 +25,11 @@ public class App {
         for (String beanName : beanNames) {
             System.out.println(beanName);
         }
+    }
+
+    public static void main(String[] args) {
+        ExecutorService executorService = Executors.newCachedThreadPool();
+        executorService.execute(() -> System.out.println(""));
     }
 
 }
